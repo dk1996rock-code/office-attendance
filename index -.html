@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Office Attendance Management</title>
+
+<!-- QR Scanner -->
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+<!-- QR Code Generator -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+*{
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    margin:0;
+    background:#f3f6fa;
+    color:#222;
+}
+
+.header{
+    background:#174a73;
+    color:white;
+    padding:20px;
+    text-align:center;
+}
+
+.header h1{
+    margin:0;
+}
+
+.container{
+    width:95%;
+    max-width:1200px;
+    margin:20px auto;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+h2{
+    color:#174a73;
+    margin-top:0;
+}
+
+.form-row{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.form-group{
+    flex:1;
+    min-width:200px;
+}
+
+label{
+    display:block;
+    font-weight:bold;
+    margin-bottom:6px;
+}
+
+input,select{
+    width:100%;
+    padding:11px;
+    border:1px solid #ccc;
+    border-radius:6px;
+    font-size:15px;
+}
+
+button{
+    border:0;
+    border-radius:6px;
+    padding:11px 18px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.btn{
+    background:#174a73;
+    color:white;
+}
+
+.green{
+    background:#198754;
+    color:white;
+}
+
+.red{
+    background:#dc3545;
+    color:white;
+}
+
+.orange{
+    background:#f0ad00;
+    color:white;
+}
+
+.blue{
+    background:#0d6efd;
+    color:white;
+}
+
+button:hover{
+    opacity:.85;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:center;
+}
+
+th{
+    background:#174a73;
+    color:white;
+}
+
+.present{
+    color:green;
+    font-weight:bold;
+}
+
+.absent{
+    color:red;
+    font-weight:bold;
+}
+
+.dashboard{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.box{
+    flex:1;
+    min-width:180px;
+    background:#eef4f8;
+    padding:20px;
+    text-align:center;
+    border-radius:10px;
+}
+
+.box h3{
+    font-size:30px;
+    margin:0;
+    color:#174a73;
+}
+
+.scanner{
+    max-width:500px;
+    margin:auto;
+}
+
+#reader{
+    width:100%;
+}
+
+.scan-message{
+    text-align:center;
+    font-weight:bold;
+    margin-top:10px;
+    min-height:25px;
+}
+
+.qr-box{
+    display:none;
+    text-align:center;
+    margin-top:15px;
+    padding:15px;
+    border:1px solid #ddd;
+    border-radius:8px;
+}
+
+.search{
+    margin-bottom:10px;
+}
+
+@media(max-width:650px){
+    table{
+        font-size:12px;
+    }
+
+    th,td{
+        padding:7px;
+    }
+
+    .header h1{
+        font-size:22px;
+    }
+}
+
+/* ===== MOBILE-FIRST LAYOUT ===== */
+.live-clock{
+    font-size:32px;
+    font-weight:800;
+    letter-spacing:1px;
+    margin-top:8px;
+}
+.live-date{
+    font-size:15px;
+    margin-top:3px;
+    opacity:.95;
+}
+.scanner{
+    width:100%;
+    max-width:520px;
+    margin:0 auto;
+}
+#reader{
+    width:100% !important;
+    max-width:520px;
+    margin:0 auto;
+    overflow:hidden;
+    border-radius:12px;
+}
+#reader video{
+    width:100% !important;
+    height:auto !important;
+    max-height:60vh;
+    object-fit:cover;
+}
+#reader__scan_region{
+    width:100% !important;
+}
+#reader__dashboard{
+    width:100% !important;
+}
+#cameraSelect{
+    display:none !important;
+}
+.form-row{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:12px;
+}
+.form-group{
+    min-width:0;
+    width:100%;
+}
+button{
+    width:100%;
+    min-height:46px;
+    font-size:15px;
+}
+.card{
+    width:100%;
+    padding:16px;
+    margin-bottom:14px;
+}
+.container{
+    width:100%;
+    max-width:760px;
+    margin:0 auto;
+    padding:10px;
+}
+.header{
+    padding:16px 12px;
+}
+.header h1{
+    font-size:25px;
+}
+.dashboard{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+.box{
+    min-width:0;
+    padding:15px 8px;
+}
+.box h3{
+    font-size:26px;
+}
+table{
+    display:block;
+    width:100%;
+    overflow-x:auto;
+    white-space:nowrap;
+    -webkit-overflow-scrolling:touch;
+}
+th,td{
+    padding:8px;
+    font-size:12px;
+}
+.search{
+    width:100%;
+}
+.qr-box{
+    width:100%;
+}
+@media(min-width:651px){
+    .form-row{
+        display:flex;
+        flex-wrap:wrap;
+    }
+    .form-group{
+        flex:1;
+        min-width:200px;
+    }
+    button{
+        width:auto;
+    }
+}
+
+
+
+.live-clock-wrap{
+    margin:12px auto 0;
+    display:inline-block;
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.25);
+    border-radius:12px;
+    padding:8px 18px;
+    min-width:150px;
+}
+#liveClock{font-size:24px;font-weight:700;line-height:1.1;}
+#liveDate{font-size:13px;margin-top:3px;opacity:.9;}
+#reader{width:100% !important;max-width:520px;margin:0 auto;}
+#reader video{width:100% !important;height:auto !important;max-height:70vh;object-fit:cover;border-radius:12px;}
+.scanner{width:100%;overflow:hidden;}
+@media(max-width:650px){
+    body{font-size:15px;}
+    .header{padding:14px 10px;}
+    .header h1{font-size:24px;}
+    .header p{font-size:13px;margin:6px 0 0;}
+    .container{width:100%;max-width:none;padding:0 10px;}
+    .card{padding:14px;margin:10px 0;border-radius:14px;overflow:hidden;}
+    h2{font-size:22px;}
+    .form-row{display:block;}
+    .form-group{width:100%;min-width:0;margin-bottom:12px;}
+    input,select,button{width:100%;min-height:46px;font-size:16px;}
+    table{display:block;overflow-x:auto;white-space:nowrap;width:100%;}
+    th,td{padding:8px;font-size:13px;}
+    #qrcode{display:flex;justify-content:center;align-items:center;}
+    #qrcode img,#qrcode canvas{max-width:100%;height:auto;}
+    #reader{min-height:260px;}
+    .live-clock-wrap{margin-top:10px;}
+    #liveClock{font-size:22px;}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>Office Attendance Management</h1>
+    <p>QR Code Based Attendance System</p>
+    <div class="live-clock-wrap">
+        <div id="liveClock">--:--:--</div>
+        <div id="liveDate">--/--/----</div>
+    </div>
+</div>
+
+<div class="container">
+
+<!-- DASHBOARD -->
+<div class="card">
+<h2>Dashboard</h2>
+
+<div class="dashboard">
+
+<div class="box">
+<h3 id="totalEmployees">0</h3>
+<p>Total Employees</p>
+</div>
+
+<div class="box">
+<h3 id="todayPresent">0</h3>
+<p>Today's Present</p>
+</div>
+
+<div class="box">
+<h3 id="todayAbsent">0</h3>
+<p>Today's Absent</p>
+</div>
+
+<div class="box">
+<h3 id="todayAttendance">0</h3>
+<p>Today's Records</p>
+</div>
+
+</div>
+</div>
+
+
+<!-- EMPLOYEE REGISTRATION -->
+<div class="card">
+
+<h2>Employee Registration</h2>
+
+<div class="form-row">
+
+<div class="form-group">
+<label>Employee ID</label>
+<input id="employeeId" placeholder="EMP001">
+</div>
+
+<div class="form-group">
+<label>Employee Name</label>
+<input id="employeeName" placeholder="Employee Name">
+</div>
+
+<div class="form-group">
+<label>Department</label>
+<input id="department" placeholder="Sales / Accounts / etc.">
+</div>
+
+<div class="form-group">
+<label>&nbsp;</label>
+<button class="btn" onclick="addEmployee()">
+Add Employee
+</button>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- EMPLOYEE LIST -->
+<div class="card">
+
+<h2>Employee List</h2>
+
+<input
+class="search"
+id="employeeSearch"
+placeholder="Search Employee..."
+onkeyup="displayEmployees()"
+>
+
+<table>
+
+<thead>
+<tr>
+<th>Employee ID</th>
+<th>Name</th>
+<th>Department</th>
+<th>QR Code</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="employeeTable"></tbody>
+
+</table>
+
+<div id="qrBox" class="qr-box">
+<h3>Employee QR Code</h3>
+<div id="qrcode"></div>
+<br>
+<button class="blue" onclick="printQR()">Print QR</button>
+</div>
+
+</div>
+
+
+<!-- QR SCANNER -->
+<div class="card">
+
+<h2>📷 Scan QR for Attendance</h2>
+
+<div class="scanner">
+
+<div id="reader"></div>
+
+<div id="scanMessage" class="scan-message">
+Ready to Scan
+</div>
+<p style="font-size:13px;color:#666;text-align:center;margin:8px 0;">
+New QR codes contain Employee ID + Name + Department. Attendance is allowed only within 10 m of Xama Traders.
+</p>
+<button class="red" onclick="stopScanning()">Stop Scanning</button>
+
+</div>
+
+</div>
+
+
+<!-- MANUAL BACKUP -->
+<div class="card">
+
+<h2>Attendance Backup Entry</h2>
+
+<p>
+QR Scanner કામ ન કરે ત્યારે Admin માટે backup option.
+</p>
+
+<div class="form-row">
+
+<div class="form-group">
+<label>Employee</label>
+
+<select id="manualEmployee">
+<option value="">Select Employee</option>
+</select>
+
+</div>
+
+<div class="form-group">
+<label>Date</label>
+<input type="date" id="manualDate">
+</div>
+
+<div class="form-group">
+<label>Status</label>
+
+<select id="manualStatus">
+<option value="Present">Present</option>
+<option value="Absent">Absent</option>
+</select>
+
+</div>
+
+</div>
+
+<div class="form-row">
+
+<div class="form-group">
+<label>In Time</label>
+<input type="time" id="manualIn">
+</div>
+
+<div class="form-group">
+<label>Out Time</label>
+<input type="time" id="manualOut">
+</div>
+
+<div class="form-group">
+<label>&nbsp;</label>
+<button class="green" onclick="manualAttendance()">
+Save Attendance
+</button>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ATTENDANCE -->
+<div class="card">
+
+<h2>Attendance Records</h2>
+
+<input
+class="search"
+id="attendanceSearch"
+placeholder="Search Employee / Date..."
+onkeyup="displayAttendance()"
+>
+
+<button class="blue" onclick="downloadCSV()">
+Download Attendance CSV
+</button>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Employee ID</th>
+<th>Employee Name</th>
+<th>Department</th>
+<th>Date</th>
+<th>In Time</th>
+<th>Out Time</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+
+</thead>
+
+<tbody id="attendanceTable"></tbody>
+
+</table>
+
+</div>
+
+
+<!-- MONTHLY REPORT -->
+<div class="card">
+
+<h2>Monthly Attendance Report</h2>
+
+<div class="form-row">
+
+<div class="form-group">
+<label>Select Month</label>
+<input type="month" id="reportMonth">
+</div>
+
+<div class="form-group">
+<label>&nbsp;</label>
+<button class="btn" onclick="monthlyReport()">
+Generate Report
+</button>
+</div>
+
+</div>
+
+<div id="monthlyResult"></div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =========================
+   DATA
+========================= */
+
+let employees =
+JSON.parse(localStorage.getItem("officeEmployees")) || [];
+
+let attendance =
+JSON.parse(localStorage.getItem("officeAttendance")) || [];
+
+/* Employee IDs encoded in the supplied QR codes */
+const suppliedEmployees = [
+    {id:"EM0001", name:"MANTHAN KASHYAP", department:""},
+    {id:"EM0002", name:"HARSH MACHHI", department:""},
+    {id:"EM0003", name:"KANU PARMAR", department:""}
+];
+
+suppliedEmployees.forEach(emp=>{
+    if(!employees.some(e=>e.id===emp.id)) employees.push(emp);
+});
+localStorage.setItem("officeEmployees", JSON.stringify(employees));
+
+
+/* =========================
+   INITIAL DATE
+========================= */
+
+
+/* ===== LIVE LOCAL DATE/TIME ===== */
+function getLocalDate(){
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    const day = String(d.getDate()).padStart(2,"0");
+    return `${y}-${m}-${day}`;
+}
+
+function getLocalTime(){
+    return new Date().toLocaleTimeString("en-IN", {
+        hour:"2-digit",
+        minute:"2-digit",
+        second:"2-digit",
+        hour12:true
+    });
+}
+
+function updateLiveClock(){
+    const now = new Date();
+    const clock = document.getElementById("liveClock");
+    const date = document.getElementById("liveDate");
+    if(clock) clock.textContent = getLocalTime();
+    if(date){
+        date.textContent =
+            String(now.getDate()).padStart(2,"0") + "/" +
+            String(now.getMonth()+1).padStart(2,"0") + "/" +
+            now.getFullYear();
+    }
+}
+updateLiveClock();
+setInterval(updateLiveClock, 1000);
+
+/* Xama Traders office GPS */
+const OFFICE_LAT = 22.5550449;
+const OFFICE_LNG = 72.9297019;
+const OFFICE_RADIUS_METERS = 10;
+
+function getDistanceMeters(lat1, lon1, lat2, lon2){
+    const R = 6371000;
+    const rad = x => x * Math.PI / 180;
+    const dLat = rad(lat2-lat1);
+    const dLon = rad(lon2-lon1);
+    const a = Math.sin(dLat/2)**2 +
+        Math.cos(rad(lat1))*Math.cos(rad(lat2))*Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function checkOfficeLocation(){
+    return new Promise(resolve=>{
+        if(!navigator.geolocation){
+            document.getElementById("scanMessage").innerText =
+                "❌ GPS is not supported on this device.";
+            resolve(false);
+            return;
+        }
+
+        document.getElementById("scanMessage").innerText =
+            "📍 Checking Xama Traders office location...";
+
+        navigator.geolocation.getCurrentPosition(pos=>{
+            const distance = getDistanceMeters(
+                pos.coords.latitude, pos.coords.longitude,
+                OFFICE_LAT, OFFICE_LNG
+            );
+
+            if(distance <= OFFICE_RADIUS_METERS){
+                document.getElementById("scanMessage").innerText =
+                    "📍 Office verified (" + Math.round(distance) + " m)";
+                resolve(true);
+            }else{
+                document.getElementById("scanMessage").innerText =
+                    "❌ Outside office area. Distance: " +
+                    Math.round(distance) + " m";
+                resolve(false);
+            }
+        },()=>{
+            document.getElementById("scanMessage").innerText =
+                "❌ Please allow Location/GPS permission.";
+            resolve(false);
+        },{
+            enableHighAccuracy:true,
+            timeout:10000,
+            maximumAge:0
+        });
+    });
+}
+
+let today = getLocalDate();
+
+document.getElementById("manualDate").value = today;
+
+document.getElementById("manualEmployee").addEventListener("change", function(){
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,"0");
+    const mm = String(now.getMinutes()).padStart(2,"0");
+    const inField = document.getElementById("manualIn");
+    if(this.value && inField && !inField.value){
+        inField.value = `${hh}:${mm}`;
+    }
+});
+
+
+/* =========================
+   SAVE DATA
+========================= */
+
+function saveData(){
+
+localStorage.setItem(
+"officeEmployees",
+JSON.stringify(employees)
+);
+
+localStorage.setItem(
+"officeAttendance",
+JSON.stringify(attendance)
+);
+
+}
+
+
+/* =========================
+   ADD EMPLOYEE
+========================= */
+
+function addEmployee(){
+
+let id =
+document.getElementById("employeeId").value.trim();
+
+let name =
+document.getElementById("employeeName").value.trim();
+
+let department =
+document.getElementById("department").value.trim();
+
+
+if(id === "" || name === ""){
+
+alert("Please enter Employee ID and Employee Name.");
+return;
+
+}
+
+
+if(employees.some(e => e.id === id)){
+
+alert("Employee ID already exists.");
+return;
+
+}
+
+
+employees.push({
+
+id:id,
+name:name,
+department:department
+
+});
+
+
+saveData();
+
+document.getElementById("employeeId").value="";
+document.getElementById("employeeName").value="";
+document.getElementById("department").value="";
+
+displayEmployees();
+updateDropdowns();
+updateDashboard();
+
+alert("Employee added successfully!");
+
+}
+
+
+/* =========================
+   EMPLOYEE LIST
+========================= */
+
+function displayEmployees(){
+
+let table =
+document.getElementById("employeeTable");
+
+let search =
+document.getElementById("employeeSearch")
+.value.toLowerCase();
+
+table.innerHTML="";
+
+
+employees
+.filter(e =>
+e.id.toLowerCase().includes(search) ||
+e.name.toLowerCase().includes(search) ||
+e.department.toLowerCase().includes(search)
+)
+.forEach((employee,index)=>{
+
+table.innerHTML += `
+
+<tr>
+
+<td>${employee.id}</td>
+
+<td>${employee.name}</td>
+
+<td>${employee.department || "-"}</td>
+
+<td>
+
+<button class="blue"
+onclick="showQR(${index})">
+Show QR
+</button>
+
+</td>
+
+<td>
+
+<button class="red"
+onclick="deleteEmployee(${index})">
+Delete
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+}
+
+
+/* =========================
+   SHOW QR
+========================= */
+
+function showQR(index){
+
+let employee = employees[index];
+
+document.getElementById("qrBox").style.display="block";
+
+document.getElementById("qrcode").innerHTML="";
+
+let qrData = JSON.stringify({
+type: "office-attendance",
+employeeId: employee.id,
+employeeName: employee.name,
+department: employee.department || ""
+});
+
+new QRCode(
+document.getElementById("qrcode"),
+{
+text: qrData,
+width:280,
+height:280
+}
+);
+
+}
+
+
+/* =========================
+   PRINT QR
+========================= */
+
+function printQR(){
+
+let qr =
+document.getElementById("qrcode").innerHTML;
+
+let win =
+window.open("","","width=500,height=600");
+
+win.document.write(`
+<html>
+<head>
+<title>Employee QR Code</title>
+</head>
+<body style="text-align:center">
+<h2>Employee Attendance QR</h2>
+${qr}
+</body>
+</html>
+`);
+
+win.document.close();
+win.print();
+
+}
+
+
+/* =========================
+   DELETE EMPLOYEE
+========================= */
+
+function deleteEmployee(index){
+
+if(!confirm("Delete this employee?"))
+return;
+
+let id = employees[index].id;
+
+employees.splice(index,1);
+
+attendance =
+attendance.filter(a => a.employeeId !== id);
+
+saveData();
+
+updateLiveClock();
+displayEmployees();
+displayAttendance();
+updateDropdowns();
+updateDashboard();
+
+}
+
+
+/* =========================
+   DROPDOWNS
+========================= */
+
+function updateDropdowns(){
+
+let dropdown =
+document.getElementById("manualEmployee");
+
+dropdown.innerHTML =
+'<option value="">Select Employee</option>';
+
+employees.forEach(e=>{
+
+dropdown.innerHTML += `
+<option value="${e.id}">
+${e.id} - ${e.name}
+</option>
+`;
+
+});
+
+}
+
+
+/* =========================
+   QR ATTENDANCE
+========================= */
+
+function processScan(decodedText){
+
+    let employeeId = decodedText.trim();
+    let scannedEmployee = null;
+
+    /* JSON QR format */
+    try{
+        const data = JSON.parse(decodedText);
+        if(data && data.type === "office-attendance" && data.employeeId){
+            employeeId = String(data.employeeId).trim();
+            scannedEmployee = {
+                id: employeeId,
+                name: String(data.employeeName || employeeId),
+                department: String(data.department || "")
+            };
+        }
+    }catch(e){}
+
+    /* Support existing QR URLs such as:
+       https://yourwebsite.com/attendance?employee=EM0001 */
+    if(!scannedEmployee){
+        try{
+            const url = new URL(decodedText);
+            const idFromUrl =
+                url.searchParams.get("employee") ||
+                url.searchParams.get("employeeId") ||
+                url.searchParams.get("id");
+
+            if(idFromUrl){
+                employeeId = String(idFromUrl).trim();
+
+                const known = {
+                    "EM0001": "MANTHAN KASHYAP",
+                    "EM0002": "HARSH MACHHI",
+                    "EM0003": "KANU PARMAR"
+                };
+
+                scannedEmployee = {
+                    id: employeeId,
+                    name: known[employeeId] || employeeId,
+                    department: ""
+                };
+            }
+        }catch(e){}
+    }
+
+    let employee = employees.find(e => e.id === employeeId);
+
+    if(!employee && scannedEmployee){
+        employee = scannedEmployee;
+        employees.push(employee);
+        saveData();
+        displayEmployees();
+        updateDropdowns();
+        updateDashboard();
+    }
+
+    if(!employee){
+        document.getElementById("scanMessage").innerText =
+            "❌ Employee not found. QR must contain a valid Employee ID.";
+        return;
+    }
+
+    const date = getLocalDate();
+    const time = getLocalTime();
+
+    let record = attendance.find(a =>
+        a.employeeId === employee.id && a.date === date
+    );
+
+    if(!record){
+        attendance.push({
+            employeeId:employee.id,
+            employeeName:employee.name,
+            department:employee.department || "",
+            date:date,
+            inTime:time,
+            outTime:"",
+            status:"Present"
+        });
+
+        document.getElementById("scanMessage").innerText =
+            "✅ " + employee.id + " - " + employee.name + " | IN: " + time;
+    }else if(record.inTime && !record.outTime){
+        record.outTime = time;
+
+        document.getElementById("scanMessage").innerText =
+            "✅ " + employee.id + " - " + employee.name + " | OUT: " + time;
+    }else{
+        document.getElementById("scanMessage").innerText =
+            "⚠️ " + employee.name + " already has IN & OUT for today.";
+    }
+
+    saveData();
+    displayAttendance();
+    updateDashboard();
+}
+
+
+/* =========================
+   QR SCANNER
+========================= */
+
+let qrScanner = null;
+let cameras = [];
+let currentCameraId = null;
+let lastScannedText = "";
+let lastScanTime = 0;
+
+async function startScanner(){
+
+    try{
+        if(typeof Html5Qrcode === "undefined"){
+            setScan("❌ QR scanner library could not load.");
+            return;
+        }
+
+        if(qrScanner){
+            try{ await qrScanner.stop(); }catch(e){}
+            try{ qrScanner.clear(); }catch(e){}
+        }
+
+        qrScanner = new Html5Qrcode("reader");
+
+        /* BACK CAMERA ONLY — no camera selector */
+        let devices = [];
+        try{ devices = await Html5Qrcode.getCameras(); }catch(e){}
+
+        let backCamera =
+            devices.find(c => /back|rear|environment/i.test(c.label || "")) ||
+            devices.find(c => /camera 0/i.test(c.label || "")) ||
+            devices[0];
+
+        const config = {
+            fps:10,
+            qrbox:function(viewfinderWidth, viewfinderHeight){
+                const size = Math.floor(
+                    Math.min(viewfinderWidth, viewfinderHeight) * 0.72
+                );
+                return {
+                    width:Math.max(180,Math.min(size,300)),
+                    height:Math.max(180,Math.min(size,300))
+                };
+            },
+            aspectRatio:1.0
+        };
+
+        if(backCamera){
+            await qrScanner.start(backCamera.id, config, handleDecodedQR, ()=>{});
+        }else{
+            await qrScanner.start(
+                {facingMode:"environment"},
+                config,
+                handleDecodedQR,
+                ()=>{}
+            );
+        }
+
+        setScan("📷 Back Camera Ready — Scan Employee QR");
+
+    }catch(error){
+        console.error(error);
+        setScan("❌ Back camera unavailable. Allow camera permission and retry.");
+    }
+}
+
+function handleDecodedQR(decodedText){
+
+    let now = Date.now();
+
+    /* Prevent repeated reads of the same QR */
+    if(decodedText === lastScannedText &&
+       now - lastScanTime < 3000){
+        return;
+    }
+
+    lastScannedText = decodedText;
+    lastScanTime = now;
+
+    checkOfficeLocation().then(isAtOffice=>{
+        if(isAtOffice) processScan(decodedText);
+    });
+}
+
+async function stopScanning(){
+
+    if(qrScanner){
+        try{
+            await qrScanner.stop();
+            qrScanner.clear();
+        }catch(e){}
+        qrScanner = null;
+    }
+
+    setScan("Scanning stopped");
+}
+
+startScanner();
+
+/* =========================
+   MANUAL ATTENDANCE
+========================= */
+
+function manualAttendance(){
+
+let id =
+document.getElementById("manualEmployee").value;
+
+let date =
+document.getElementById("manualDate").value;
+
+let status =
+document.getElementById("manualStatus").value;
+
+let inTime =
+document.getElementById("manualIn").value;
+
+let outTime =
+document.getElementById("manualOut").value;
+
+
+if(!id || !date){
+
+alert("Please select Employee and Date.");
+return;
+
+}
+
+
+let employee =
+employees.find(e=>e.id===id);
+
+
+let record =
+attendance.find(a =>
+a.employeeId===id &&
+a.date===date
+);
+
+
+if(record){
+
+record.status=status;
+record.inTime=inTime;
+record.outTime=outTime;
+
+}else{
+
+attendance.push({
+
+employeeId:id,
+employeeName:employee.name,
+department:employee.department,
+date:date,
+inTime:inTime,
+outTime:outTime,
+status:status
+
+});
+
+}
+
+
+saveData();
+
+displayAttendance();
+updateDashboard();
+
+alert("Attendance saved successfully!");
+
+}
+
+
+/* =========================
+   ATTENDANCE TABLE
+========================= */
+
+function displayAttendance(){
+
+let table =
+document.getElementById("attendanceTable");
+
+let search =
+document.getElementById("attendanceSearch")
+.value.toLowerCase();
+
+table.innerHTML="";
+
+
+attendance
+.filter(a =>
+a.employeeId.toLowerCase().includes(search) ||
+a.employeeName.toLowerCase().includes(search) ||
+a.date.includes(search)
+)
+.forEach((a,index)=>{
+
+let cls =
+a.status==="Present"
+?"present"
+:"absent";
+
+
+table.innerHTML += `
+
+<tr>
+
+<td>${a.employeeId}</td>
+
+<td>${a.employeeName}</td>
+
+<td>${a.department || "-"}</td>
+
+<td>${a.date}</td>
+
+<td>${a.inTime || "-"}</td>
+
+<td>${a.outTime || "-"}</td>
+
+<td class="${cls}">
+${a.status}
+</td>
+
+<td>
+
+<button class="red"
+onclick="deleteAttendance(${index})">
+Delete
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+}
+
+
+/* =========================
+   DELETE ATTENDANCE
+========================= */
+
+function deleteAttendance(index){
+
+if(!confirm("Delete attendance record?"))
+return;
+
+attendance.splice(index,1);
+
+saveData();
+
+displayAttendance();
+updateDashboard();
+
+}
+
+
+/* =========================
+   DASHBOARD
+========================= */
+
+function updateDashboard(){
+
+let date =
+new Date().toISOString().split("T")[0];
+
+let todayRecords =
+attendance.filter(a => a.date===date);
+
+let present =
+todayRecords.filter(
+a=>a.status==="Present"
+).length;
+
+let absent =
+todayRecords.filter(
+a=>a.status==="Absent"
+).length;
+
+
+document.getElementById("totalEmployees")
+.innerText=employees.length;
+
+document.getElementById("todayPresent")
+.innerText=present;
+
+document.getElementById("todayAbsent")
+.innerText=absent;
+
+document.getElementById("todayAttendance")
+.innerText=
+todayRecords.length;
+
+}
+
+
+/* =========================
+   CSV DOWNLOAD
+========================= */
+
+function downloadCSV(){
+
+if(attendance.length===0){
+
+alert("No attendance records.");
+return;
+
+}
+
+
+let csv =
+"Employee ID,Employee Name,Department,Date,In Time,Out Time,Status\n";
+
+
+attendance.forEach(a=>{
+
+csv +=
+`"${a.employeeId}","${a.employeeName}","${a.department || ""}","${a.date}","${a.inTime || ""}","${a.outTime || ""}","${a.status}"\n`;
+
+});
+
+
+let blob =
+new Blob([csv],{type:"text/csv"});
+
+let url =
+URL.createObjectURL(blob);
+
+let link =
+document.createElement("a");
+
+link.href=url;
+
+link.download="Office_Attendance_Report.csv";
+
+link.click();
+
+URL.revokeObjectURL(url);
+
+}
+
+
+/* =========================
+   MONTHLY REPORT
+========================= */
+
+function monthlyReport(){
+
+let month =
+document.getElementById("reportMonth").value;
+
+if(!month){
+
+alert("Please select month.");
+return;
+
+}
+
+
+let records =
+attendance.filter(a =>
+a.date.startsWith(month)
+);
+
+
+let html = `
+
+<table>
+
+<thead>
+
+<tr>
+<th>Employee ID</th>
+<th>Employee Name</th>
+<th>Present Days</th>
+<th>Absent Days</th>
+</tr>
+
+</thead>
+
+<tbody>
+`;
+
+
+employees.forEach(e=>{
+
+let employeeRecords =
+records.filter(
+a=>a.employeeId===e.id
+);
+
+let present =
+employeeRecords.filter(
+a=>a.status==="Present"
+).length;
+
+let absent =
+employeeRecords.filter(
+a=>a.status==="Absent"
+).length;
+
+
+html += `
+
+<tr>
+
+<td>${e.id}</td>
+
+<td>${e.name}</td>
+
+<td class="present">${present}</td>
+
+<td class="absent">${absent}</td>
+
+</tr>
+
+`;
+
+});
+
+
+html += `
+</tbody>
+</table>
+`;
+
+
+document.getElementById("monthlyResult")
+.innerHTML=html;
+
+}
+
+
+/* =========================
+   START
+========================= */
+
+displayEmployees();
+displayAttendance();
+updateDropdowns();
+updateDashboard();
+
+</script>
+
+</body>
+</html>
